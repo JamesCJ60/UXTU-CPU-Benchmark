@@ -24,7 +24,7 @@ class CPUBenchmark
         int logicalProcessorCount = Environment.ProcessorCount;
         int coreCount = 0;
 
-        Console.WriteLine("Starting CPU and Memory Benchmark (V0.2.0)...\n");
+        Console.WriteLine("Starting CPU and Memory Benchmark (V0.3.0)...\n");
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -66,8 +66,8 @@ class CPUBenchmark
         var l3CacheScore = Math.Round(CalculateScore(l3CachePerformance.TotalMilliseconds, logicalProcessorCount, false));
         Console.WriteLine($"L3 Cache Performance: {l3CachePerformance.TotalMilliseconds} ms, Score: {l3CacheScore}");
 
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) l3CacheSize = 256;
-        var ramPerformance = BenchmarkMemorySubsystem((l3CacheSize * (1024 * 1024)) * 4);
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) l3CacheSize = 128;
+        var ramPerformance = BenchmarkMemorySubsystem((l3CacheSize * (1024 * 1024)) * 8);
         var ramScore = Math.Round(CalculateScore(ramPerformance.TotalMilliseconds, logicalProcessorCount, false));
         Console.WriteLine($"RAM Performance: {ramPerformance.TotalMilliseconds} ms, Score: {ramScore}");
 
@@ -84,7 +84,7 @@ class CPUBenchmark
         double avx2ScoreSingle = 0;
         if (Avx2.IsSupported)
         {
-            var avx2SingleCore = BenchmarkAVX2Operations(iterations * 99999, false, 1);
+            var avx2SingleCore = BenchmarkAVX2Operations(iterations, false, 1);
             avx2ScoreSingle = CalculateScore(avx2SingleCore.TotalMilliseconds, logicalProcessorCount, false);
             Console.WriteLine($"AVX2: {avx2SingleCore.TotalMilliseconds} ms, Score: {avx2ScoreSingle}");
         }
@@ -97,7 +97,7 @@ class CPUBenchmark
         double avx512ScoreSingle = 0;
         if (Avx512F.IsSupported && Avx512BW.IsSupported && Avx512CD.IsSupported && Avx512DQ.IsSupported && Avx512Vbmi.IsSupported)
         {
-            var avx512SingleCore = BenchmarkAVX512Operations(iterations * 99999, false, 1);
+            var avx512SingleCore = BenchmarkAVX512Operations(iterations, false, 1);
             avx512ScoreSingle = CalculateScore(avx512SingleCore.TotalMilliseconds, logicalProcessorCount, false);
             Console.WriteLine($"AVX512: {avx512SingleCore.TotalMilliseconds} ms, Score: {avx512ScoreSingle}");
         }
@@ -107,27 +107,27 @@ class CPUBenchmark
             Console.WriteLine("AVX512: Not supported on this CPU, Score: 0");
         }
 
-        var fibonacciSingleCore = BenchmarkFibonacci(iterations / 500, false, 1);
+        var fibonacciSingleCore = BenchmarkFibonacci(iterations * 8, false, 1);
         var fibonacciScoreSingle = CalculateScore(fibonacciSingleCore.TotalMilliseconds, logicalProcessorCount, false);
         Console.WriteLine($"Fibonacci: {fibonacciSingleCore.TotalMilliseconds} ms, Score: {fibonacciScoreSingle}");
 
-        var primeNumberSingleCore = BenchmarkPrimeNumbers(iterations, false, 1);
+        var primeNumberSingleCore = BenchmarkPrimeNumbers(iterations / 2, false, 1);
         var primeNumberScoreSingle = CalculateScore(primeNumberSingleCore.TotalMilliseconds, logicalProcessorCount, false);
         Console.WriteLine($"Prime Numbers: {primeNumberSingleCore.TotalMilliseconds} ms, Score: {primeNumberScoreSingle}");
 
-        var quickSortSingleCore = BenchmarkQuickSort(iterations / 100, false, 1);
+        var quickSortSingleCore = BenchmarkQuickSort(iterations / 150, false, 1);
         var quickSortScoreSingle = CalculateScore(quickSortSingleCore.TotalMilliseconds, logicalProcessorCount, false);
         Console.WriteLine($"QuickSort: {quickSortSingleCore.TotalMilliseconds} ms, Score: {quickSortScoreSingle}");
 
-        var sha256SingleCore = BenchmarkSHA256(iterations * 10, false, 1);
+        var sha256SingleCore = BenchmarkSHA256(iterations, false, 1);
         var sha256ScoreSingle = CalculateScore(sha256SingleCore.TotalMilliseconds, logicalProcessorCount, false);
         Console.WriteLine($"SHA-256: {sha256SingleCore.TotalMilliseconds} ms, Score: {sha256ScoreSingle}");
 
-        var matrixMultiplicationSingleCore = BenchmarkMatrixMultiplication(iterations / 500, false, 1);
+        var matrixMultiplicationSingleCore = BenchmarkMatrixMultiplication(iterations / 1000, false, 1);
         var matrixMultiplicationScoreSingle = CalculateScore(matrixMultiplicationSingleCore.TotalMilliseconds, logicalProcessorCount, false);
         Console.WriteLine($"Matrix Multiplication: {matrixMultiplicationSingleCore.TotalMilliseconds} ms, Score: {matrixMultiplicationScoreSingle}");
 
-        var randomNumberGenerationSingleCore = BenchmarkRandomNumberGeneration(iterations * 999, false, 1);
+        var randomNumberGenerationSingleCore = BenchmarkRandomNumberGeneration(iterations * 16, false, 1);
         var randomNumberScoreSingle = CalculateScore(randomNumberGenerationSingleCore.TotalMilliseconds, logicalProcessorCount, false);
         Console.WriteLine($"Random Number Generation: {randomNumberGenerationSingleCore.TotalMilliseconds} ms, Score: {randomNumberScoreSingle}");
 
@@ -139,7 +139,7 @@ class CPUBenchmark
         var branchPredictionScoreSingle = CalculateScore(branchPredictionSingleCore.TotalMilliseconds, logicalProcessorCount, false);
         Console.WriteLine($"Branch Prediction (Unpredictable): {branchPredictionSingleCore.TotalMilliseconds} ms, Score: {branchPredictionScoreSingle}");
 
-        var imgProcessingSingleCore = BenchmarkImageBlur(iterations / 10000, false, 1);
+        var imgProcessingSingleCore = BenchmarkImageBlur(4, false, 1);
         var imgProcessingScoreSingle = CalculateScore(imgProcessingSingleCore.TotalMilliseconds, logicalProcessorCount, false);
         Console.WriteLine($"Image Processing: {imgProcessingSingleCore.TotalMilliseconds} ms, Score: {imgProcessingScoreSingle}");
 
@@ -159,7 +159,7 @@ class CPUBenchmark
         var webSingleCoreScore = CalculateScore(webSingleCore.TotalMilliseconds, logicalProcessorCount, false);
         Console.WriteLine($"HTML5/JS/CSS: {webSingleCore.TotalMilliseconds} ms, Score: {webSingleCoreScore}");
 
-        var mlSingleCore = BenchmarkNeuralNetworkProcessing(iterations / 50, false, 1);
+        var mlSingleCore = BenchmarkNeuralNetworkProcessing(iterations / 100, false, 1);
         var mlSingleCoreScore = CalculateScore(mlSingleCore.TotalMilliseconds, logicalProcessorCount, false);
         Console.WriteLine($"Neural Network: {mlSingleCore.TotalMilliseconds} ms, Score: {mlSingleCoreScore}");
 
@@ -180,7 +180,7 @@ class CPUBenchmark
         double avx2ScoreMulti = 0;
         if (Avx2.IsSupported)
         {
-            var avx2MultiCore = BenchmarkAVX2Operations(iterations * 99999, true, logicalProcessorCount);
+            var avx2MultiCore = BenchmarkAVX2Operations(iterations, true, logicalProcessorCount);
             avx2ScoreMulti = CalculateScore(avx2MultiCore.TotalMilliseconds, logicalProcessorCount, true);
             Console.WriteLine($"AVX2: {avx2MultiCore.TotalMilliseconds} ms, Score: {avx2ScoreMulti}");
         }
@@ -193,7 +193,7 @@ class CPUBenchmark
         double avx512ScoreMulti = 0;
         if (Avx512F.IsSupported && Avx512BW.IsSupported && Avx512CD.IsSupported && Avx512DQ.IsSupported && Avx512Vbmi.IsSupported)
         {
-            var avx512MultiCore = BenchmarkAVX512Operations(iterations * 99999, true, logicalProcessorCount);
+            var avx512MultiCore = BenchmarkAVX512Operations(iterations, true, logicalProcessorCount);
             avx512ScoreMulti = CalculateScore(avx512MultiCore.TotalMilliseconds, logicalProcessorCount, true);
             Console.WriteLine($"AVX512: {avx512MultiCore.TotalMilliseconds} ms, Score: {avx512ScoreMulti}");
         }
@@ -203,27 +203,27 @@ class CPUBenchmark
             Console.WriteLine("AVX512: Not supported on this CPU, Score: 0");
         }
 
-        var fibonacciMultiCore = BenchmarkFibonacci(iterations / 500, true, logicalProcessorCount);
+        var fibonacciMultiCore = BenchmarkFibonacci(iterations * 8, true, logicalProcessorCount);
         var fibonacciScoreMulti = CalculateScore(fibonacciMultiCore.TotalMilliseconds, logicalProcessorCount, true);
         Console.WriteLine($"Fibonacci: {fibonacciMultiCore.TotalMilliseconds} ms, Score: {fibonacciScoreMulti}");
 
-        var primeNumberMultiCore = BenchmarkPrimeNumbers(iterations, true, logicalProcessorCount);
+        var primeNumberMultiCore = BenchmarkPrimeNumbers(iterations / 2, true, logicalProcessorCount);
         var primeNumberScoreMulti = CalculateScore(primeNumberMultiCore.TotalMilliseconds, logicalProcessorCount, true);
         Console.WriteLine($"Prime Numbers: {primeNumberMultiCore.TotalMilliseconds} ms, Score: {primeNumberScoreMulti}");
 
-        var quickSortMultiCore = BenchmarkQuickSort(iterations / 100, true, logicalProcessorCount);
+        var quickSortMultiCore = BenchmarkQuickSort(iterations / 150, true, logicalProcessorCount);
         var quickSortScoreMulti = CalculateScore(quickSortMultiCore.TotalMilliseconds, logicalProcessorCount, true);
         Console.WriteLine($"QuickSort: {quickSortMultiCore.TotalMilliseconds} ms, Score: {quickSortScoreMulti}");
 
-        var sha256MultiCore = BenchmarkSHA256(iterations * 10, true, logicalProcessorCount);
+        var sha256MultiCore = BenchmarkSHA256(iterations, true, logicalProcessorCount);
         var sha256ScoreMulti = CalculateScore(sha256MultiCore.TotalMilliseconds, logicalProcessorCount, true);
         Console.WriteLine($"SHA-256: {sha256MultiCore.TotalMilliseconds} ms, Score: {sha256ScoreMulti}");
 
-        var matrixMultiplicationMultiCore = BenchmarkMatrixMultiplication(iterations / 500, true, logicalProcessorCount);
+        var matrixMultiplicationMultiCore = BenchmarkMatrixMultiplication(iterations / 1000, true, logicalProcessorCount);
         var matrixMultiplicationScoreMulti = CalculateScore(matrixMultiplicationMultiCore.TotalMilliseconds, logicalProcessorCount, true);
         Console.WriteLine($"Matrix Multiplication: {matrixMultiplicationMultiCore.TotalMilliseconds} ms, Score: {matrixMultiplicationScoreMulti}");
 
-        var randomNumberGenerationMultiCore = BenchmarkRandomNumberGeneration(iterations * 999, true, logicalProcessorCount);
+        var randomNumberGenerationMultiCore = BenchmarkRandomNumberGeneration(iterations * 16, true, logicalProcessorCount);
         var randomNumberScoreMulti = CalculateScore(randomNumberGenerationMultiCore.TotalMilliseconds, logicalProcessorCount, true);
         Console.WriteLine($"Random Number Generation: {randomNumberGenerationMultiCore.TotalMilliseconds} ms, Score: {randomNumberScoreMulti}");
 
@@ -235,7 +235,7 @@ class CPUBenchmark
         var branchPredictionMulti = CalculateScore(branchPredictionMultiCore.TotalMilliseconds, logicalProcessorCount, true);
         Console.WriteLine($"Branch Prediction (Unpredictable): {branchPredictionMultiCore.TotalMilliseconds} ms, Score: {branchPredictionMulti}");
 
-        var imgProcessingMultiCore = BenchmarkImageBlur(iterations / 10000, true, logicalProcessorCount);
+        var imgProcessingMultiCore = BenchmarkImageBlur(4, true, logicalProcessorCount);
         var imgProcessingMulti = CalculateScore(imgProcessingMultiCore.TotalMilliseconds, logicalProcessorCount, true);
         Console.WriteLine($"Image Processing: {imgProcessingMultiCore.TotalMilliseconds} ms, Score: {imgProcessingMulti}");
 
@@ -255,7 +255,7 @@ class CPUBenchmark
         var webMultiCoreScore = CalculateScore(webMultiCore.TotalMilliseconds, logicalProcessorCount, true);
         Console.WriteLine($"HTML5/JS/CSS: {webMultiCore.TotalMilliseconds} ms, Score: {webMultiCoreScore}");
 
-        var mlMultiCore = BenchmarkNeuralNetworkProcessing(iterations / 50, true, logicalProcessorCount);
+        var mlMultiCore = BenchmarkNeuralNetworkProcessing(iterations / 100, true, logicalProcessorCount);
         var mlMultiCoreScore = CalculateScore(mlMultiCore.TotalMilliseconds, logicalProcessorCount, true);
         Console.WriteLine($"Neural Network: {mlMultiCore.TotalMilliseconds} ms, Score: {mlMultiCoreScore}");
 
@@ -263,7 +263,7 @@ class CPUBenchmark
         var videoMultiCoreScore = CalculateScore(videoMultiCore.TotalMilliseconds, logicalProcessorCount, true);
         Console.WriteLine($"Video Transcoding: {videoMultiCore.TotalMilliseconds} ms, Score: {videoMultiCoreScore}");
 
-        var comMultiCore = BenchmarkThreadCommunication(iterations / 10, logicalProcessorCount);
+        var comMultiCore = BenchmarkThreadCommunication(iterations, logicalProcessorCount);
         var comMultiCoreScore = CalculateScore(comMultiCore.TotalMilliseconds, logicalProcessorCount, true);
         Console.WriteLine($"Thread Communication: {comMultiCore.TotalMilliseconds} ms, Score: {comMultiCoreScore}");
 
@@ -273,26 +273,33 @@ class CPUBenchmark
         int totalBenches = 19;
         int totalBenchesMT = totalBenches + 1;
 
-        var singleCoreScore = Math.Round((intArithmeticScoreSingle + fpArithmeticScoreSingle + avx2ScoreSingle + avx512ScoreSingle + fibonacciScoreSingle + primeNumberScoreSingle + quickSortScoreSingle + sha256ScoreSingle + matrixMultiplicationScoreSingle + randomNumberScoreSingle + branchPredictionScoreSingle + imgProcessingScoreSingle + branchPredictionScoreSinglePredic + codeComplieSingleCoreScore + rtSingleCoreScore + compSingleCoreScore + webSingleCoreScore + mlSingleCoreScore + videoSingleCoreScore) / totalBenches);
-        var singleCoreScoreW512 = Math.Round((intArithmeticScoreSingle + fpArithmeticScoreSingle + avx2ScoreSingle + fibonacciScoreSingle + primeNumberScoreSingle + quickSortScoreSingle + sha256ScoreSingle + matrixMultiplicationScoreSingle + randomNumberScoreSingle + branchPredictionScoreSingle + imgProcessingScoreSingle + branchPredictionScoreSinglePredic + codeComplieSingleCoreScore + rtSingleCoreScore + compSingleCoreScore + webSingleCoreScore + mlSingleCoreScore + videoSingleCoreScore) / totalBenches - 1);
-        var singleCoreScoreWAVX = Math.Round((intArithmeticScoreSingle + fpArithmeticScoreSingle + fibonacciScoreSingle + primeNumberScoreSingle + quickSortScoreSingle + sha256ScoreSingle + matrixMultiplicationScoreSingle + randomNumberScoreSingle + branchPredictionScoreSingle + imgProcessingScoreSingle + branchPredictionScoreSinglePredic + codeComplieSingleCoreScore + rtSingleCoreScore + compSingleCoreScore + webSingleCoreScore + mlSingleCoreScore + videoSingleCoreScore) / totalBenches - 2);
-        Console.WriteLine($"Final Single-Core Score: {singleCoreScore}");
-        Console.WriteLine($"Final Single-Core Score (Without AVX): {singleCoreScoreWAVX}");
-        Console.WriteLine($"Final Single-Core Score (Without AVX512): {singleCoreScoreW512}\n");
+        int singleCoreBenchCount = totalBenches - (avx2ScoreSingle == 0 ? 1 : 0) - (avx512ScoreSingle == 0 ? 1 : 0);
+        int multiCoreBenchCount = totalBenchesMT - (avx2ScoreMulti == 0 ? 1 : 0) - (avx512ScoreMulti == 0 ? 1 : 0);
 
+        double singleCoreScore = (
+            intArithmeticScoreSingle + fpArithmeticScoreSingle + avx2ScoreSingle + avx512ScoreSingle + fibonacciScoreSingle +
+            primeNumberScoreSingle + quickSortScoreSingle + sha256ScoreSingle + matrixMultiplicationScoreSingle + randomNumberScoreSingle +
+            branchPredictionScoreSingle + imgProcessingScoreSingle + branchPredictionScoreSinglePredic + codeComplieSingleCoreScore +
+            rtSingleCoreScore + compSingleCoreScore + webSingleCoreScore + mlSingleCoreScore + videoSingleCoreScore
+        ) / singleCoreBenchCount;
 
-        var multiCoreScore = Math.Round((intArithmeticScoreMulti + fpArithmeticScoreMulti + avx2ScoreMulti + avx512ScoreMulti + fibonacciScoreMulti + primeNumberScoreMulti + quickSortScoreMulti + sha256ScoreMulti + matrixMultiplicationScoreMulti + randomNumberScoreMulti + branchPredictionMulti + imgProcessingMulti + branchPredictionMultiPredic + codeComplieMultiScore + rtMultiCoreScore + comMultiCoreScore + compMultiCoreScore + webMultiCoreScore + mlMultiCoreScore + videoMultiCoreScore) / totalBenchesMT);
-        var multiCoreScoreW512 = Math.Round((intArithmeticScoreMulti + fpArithmeticScoreMulti + avx2ScoreMulti + fibonacciScoreMulti + primeNumberScoreMulti + quickSortScoreMulti + sha256ScoreMulti + matrixMultiplicationScoreMulti + randomNumberScoreMulti + branchPredictionMulti + imgProcessingMulti + branchPredictionMultiPredic + codeComplieMultiScore + rtMultiCoreScore + comMultiCoreScore + compMultiCoreScore + webMultiCoreScore + mlMultiCoreScore + videoMultiCoreScore) / totalBenchesMT - 1);
-        var multiCoreScoreWAVX = Math.Round((intArithmeticScoreMulti + fpArithmeticScoreMulti + fibonacciScoreMulti + primeNumberScoreMulti + quickSortScoreMulti + sha256ScoreMulti + matrixMultiplicationScoreMulti + randomNumberScoreMulti + branchPredictionMulti + imgProcessingMulti + branchPredictionMultiPredic + codeComplieMultiScore + rtMultiCoreScore + comMultiCoreScore + compMultiCoreScore + webMultiCoreScore + mlMultiCoreScore + videoMultiCoreScore) / totalBenchesMT - 2);
-        Console.WriteLine($"Final Multi-Thread Score: {multiCoreScore}");
-        Console.WriteLine($"Final Multi-Thread Score (Without AVX): {multiCoreScoreWAVX}");
-        Console.WriteLine($"Final Multi-Thread Score (Without AVX512): {multiCoreScoreW512}");
+        Console.WriteLine($"Final Single-Core Score: {Math.Round(singleCoreScore)}");
+
+        double multiCoreScore = (
+            intArithmeticScoreMulti + fpArithmeticScoreMulti + avx2ScoreMulti + avx512ScoreMulti + fibonacciScoreMulti +
+            primeNumberScoreMulti + quickSortScoreMulti + sha256ScoreMulti + matrixMultiplicationScoreMulti + randomNumberScoreMulti +
+            branchPredictionMulti + imgProcessingMulti + branchPredictionMultiPredic + codeComplieMultiScore +
+            rtMultiCoreScore + comMultiCoreScore + compMultiCoreScore + webMultiCoreScore + mlMultiCoreScore + videoMultiCoreScore
+        ) / multiCoreBenchCount;
+
+        Console.WriteLine($"Final Multi-Thread Score: {Math.Round(multiCoreScore)}");
+
 
         Console.WriteLine("\nBenchmarking Completed.\nCreated by JamesCJ.");
         Console.ReadLine();
     }
 
-    static int GetL3CacheSize()
+    private static int GetL3CacheSize()
     {
         int l3CacheSize = 0;
         try
@@ -310,7 +317,7 @@ class CPUBenchmark
         return l3CacheSize;
     }
 
-    static int GetL2CacheSize()
+    private static int GetL2CacheSize()
     {
         int l2CacheSize = 0;
         try
@@ -327,8 +334,7 @@ class CPUBenchmark
         }
         return l2CacheSize;
     }
-
-    static TimeSpan BenchmarkMemorySubsystem(int dataSize)
+    private static TimeSpan BenchmarkMemorySubsystem(int dataSize)
     {
         int elementCount = dataSize / sizeof(int);
         int[] array = new int[elementCount];
@@ -343,15 +349,35 @@ class CPUBenchmark
 
         for (int loop = 0; loop < 10; loop++)
         {
-            for (int i = 0; i < elementCount; i++)
+            int vectorizedCount = elementCount / Vector<int>.Count * Vector<int>.Count;
+            var vec5 = new Vector<int>(5);
+
+            for (int i = 0; i < vectorizedCount; i += Vector<int>.Count)
+            {
+                var vec = new Vector<int>(array, i);
+                vec = (vec * 2) + (vec / 3) - (vec - (vec / vec5) * vec5);
+                vec.CopyTo(array, i);
+            }
+            for (int i = vectorizedCount; i < elementCount; i++)
             {
                 array[i] = (array[i] * 2) + (array[i] / 3) - (array[i] % 5);
             }
 
-            for (int i = 0; i < elementCount; i++)
+            for (int i = 0; i < elementCount; i += 4)
             {
-                int reverseIndex = elementCount - 1 - i;
-                array[reverseIndex] = (array[reverseIndex] * 3) / 2 + (array[reverseIndex] % 7);
+                int reverseIndex1 = elementCount - 1 - i;
+                int reverseIndex2 = elementCount - 2 - i;
+                int reverseIndex3 = elementCount - 3 - i;
+                int reverseIndex4 = elementCount - 4 - i;
+
+                if (reverseIndex1 >= 0)
+                    array[reverseIndex1] = (array[reverseIndex1] * 3) / 2 + (array[reverseIndex1] % 7);
+                if (reverseIndex2 >= 0)
+                    array[reverseIndex2] = (array[reverseIndex2] * 3) / 2 + (array[reverseIndex2] % 7);
+                if (reverseIndex3 >= 0)
+                    array[reverseIndex3] = (array[reverseIndex3] * 3) / 2 + (array[reverseIndex3] % 7);
+                if (reverseIndex4 >= 0)
+                    array[reverseIndex4] = (array[reverseIndex4] * 3) / 2 + (array[reverseIndex4] % 7);
             }
 
             for (int i = 0; i < elementCount; i++)
@@ -362,15 +388,24 @@ class CPUBenchmark
 
             for (int stride = 1; stride <= 16; stride *= 2)
             {
-                for (int i = 0; i < elementCount; i += stride)
+                for (int i = 0; i < elementCount; i += stride * 4)
                 {
-                    array[i] = (array[i] * stride) - (array[i] % 5);
+                    if (i < elementCount)
+                        array[i] = (array[i] * stride) - (array[i] % 5);
+                    if (i + stride < elementCount)
+                        array[i + stride] = (array[i + stride] * stride) - (array[i + stride] % 5);
+                    if (i + 2 * stride < elementCount)
+                        array[i + 2 * stride] = (array[i + 2 * stride] * stride) - (array[i + 2 * stride] % 5);
+                    if (i + 3 * stride < elementCount)
+                        array[i + 3 * stride] = (array[i + 3 * stride] * stride) - (array[i + 3 * stride] % 5);
                 }
             }
 
             for (int i = 0; i < elementCount; i += 128)
             {
-                array[i] = array[(i + 64) % elementCount] + array[(i + 128) % elementCount];
+                int idx1 = (i + 64) % elementCount;
+                int idx2 = (i + 128) % elementCount;
+                array[i] = array[idx1] + array[idx2];
             }
         }
 
@@ -378,36 +413,11 @@ class CPUBenchmark
         return stopwatch.Elapsed;
     }
 
-
-    static TimeSpan BenchmarkIntegerArithmeticOperations(int iterations, bool multiCore = false, int threads = 1)
+    private static TimeSpan BenchmarkIntegerArithmeticOperations(int iterations, bool multiCore = false, int threads = 1)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
-        if (multiCore)
-        {
-            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
-            {
-                long result = 0;
-                double[] smallArray = new double[10000];
-                Random random = new Random();
-                for (int j = 0; j < smallArray.Length; j++)
-                {
-                    smallArray[j] = random.NextDouble();
-                }
-                for (int j = 0; j < iterations; j++)
-                {
-                    for (int k = 0; k < 500; k++)
-                    {
-                        long temp = (j + k) * (j - k);
-                        result += temp;
-                        double complexCalc = Math.Sin(j * 0.01) + Math.Cos(k * 0.01);
-                        result += (long)(complexCalc * 100);
-                        int index = (j + k) % smallArray.Length;
-                        result += (long)(smallArray[index] * 100);
-                    }
-                }
-            });
-        }
-        else
+
+        Action benchmarkAction = () =>
         {
             long result = 0;
             double[] smallArray = new double[10000];
@@ -416,312 +426,280 @@ class CPUBenchmark
             {
                 smallArray[j] = random.NextDouble();
             }
+
+            double[] sinValues = new double[iterations];
+            double[] cosValues = new double[500];
+            for (int i = 0; i < iterations; i++)
+            {
+                sinValues[i] = Math.Sin(i * 0.01);
+            }
+            for (int j = 0; j < 500; j++)
+            {
+                cosValues[j] = Math.Cos(j * 0.01);
+            }
+
             for (int i = 0; i < iterations; i++)
             {
                 for (int j = 0; j < 500; j++)
                 {
                     long temp = (i + j) * (i - j);
                     result += temp;
-                    double complexCalc = Math.Sin(i * 0.01) + Math.Cos(j * 0.01);
+                    double complexCalc = sinValues[i] + cosValues[j];
                     result += (long)(complexCalc * 100);
                     int index = (i + j) % smallArray.Length;
                     result += (long)(smallArray[index] * 100);
                 }
             }
+        };
+
+        if (multiCore)
+        {
+            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ => benchmarkAction());
         }
+        else
+        {
+            benchmarkAction();
+        }
+
         stopwatch.Stop();
         return stopwatch.Elapsed;
     }
 
-    static TimeSpan BenchmarkFloatingPointOperations(int iterations, bool multiCore, int threads = 1)
+    private static TimeSpan BenchmarkFloatingPointOperations(int iterations, bool multiCore, int threads = 1)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
-        if (multiCore)
-        {
-            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
-            {
-                double result = 0.0;
-                for (int j = 0; j < iterations; j++)
-                {
-                    for (int k = 0; k < 1000; k++)
-                    {
-                        result += Math.Sqrt(j + k) * Math.Sin(j - k);
-                    }
-                }
-            });
-        }
-        else
+
+        Action benchmarkAction = () =>
         {
             double result = 0.0;
+            double[] sqrtCache = new double[iterations + 1000];
+            for (int j = 0; j < iterations + 1000; j++)
+            {
+                sqrtCache[j] = Math.Sqrt(j);
+            }
+
             for (int i = 0; i < iterations; i++)
             {
                 for (int j = 0; j < 1000; j++)
                 {
-                    result += Math.Sqrt(i + j) * Math.Sin(i - j);
+                    result += sqrtCache[i + j] * Math.Sin(i - j);
                 }
             }
+        };
+
+        if (multiCore)
+        {
+            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ => benchmarkAction());
         }
-        stopwatch.Stop();
-        return stopwatch.Elapsed;
-    }
-
-    static TimeSpan BenchmarkAVX2Operations(int iterations, bool multiCore, int threads = 1)
-    {
-        Stopwatch stopwatch = Stopwatch.StartNew();
-        int loops = 0;
-        do
+        else
         {
-            if (multiCore)
-            {
-                Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
-                {
-                    Vector256<float> vec1 = Vector256.Create(1024.0f);
-                    Vector256<float> vec2 = Vector256.Create(1024.0f);
-                    for (int j = 0; j < iterations; j++)
-                    {
-                        Vector256<float> result = Avx2.Multiply(vec1, vec2);
-                        result = Avx2.Add(result, vec1);
-                        result = Avx2.Subtract(result, vec2);
-                        result = Avx2.Multiply(result, vec1);
-                        result = Avx2.And(result, vec2);
-                        result = Avx2.Or(result, vec1);
-                        result = Avx2.Xor(result, vec2);
-                        result = Avx2.Multiply(result, vec1);
-                        result = Avx.Multiply(result, vec2);
-                        result = Avx.Reciprocal(result);
-                        result = Avx.ReciprocalSqrt(result);
-                        result = Avx.Sqrt(result);
-                        result = Avx.Subtract(result, vec1);
-                        result = Avx.Add(result, vec2);
-                        result = Avx.Divide(result, vec1);
-                        result = Avx.Multiply(result, vec2);
-                        result = Avx.Add(result, vec1);
-                        result = Avx.Subtract(result, vec2);
-                        result = Avx.Multiply(result, result);
-                    }
-                });
-            }
-            else
-            {
-                Vector256<float> vec1 = Vector256.Create(1024.0f);
-                Vector256<float> vec2 = Vector256.Create(1024.0f);
-                for (int i = 0; i < iterations; i++)
-                {
-                    Vector256<float> result = Avx2.Multiply(vec1, vec2);
-                    result = Avx2.Add(result, vec1);
-                    result = Avx2.Subtract(result, vec2);
-                    result = Avx2.Multiply(result, vec1);
-                    result = Avx2.And(result, vec2);
-                    result = Avx2.Or(result, vec1);
-                    result = Avx2.Xor(result, vec2);
-                    result = Avx2.Multiply(result, vec1);
-                    result = Avx.Multiply(result, vec2);
-                    result = Avx.Reciprocal(result);
-                    result = Avx.ReciprocalSqrt(result);
-                    result = Avx.Sqrt(result);
-                    result = Avx.Subtract(result, vec1);
-                    result = Avx.Add(result, vec2);
-                    result = Avx.Divide(result, vec1);
-                    result = Avx.Multiply(result, vec2);
-                    result = Avx.Add(result, vec1);
-                    result = Avx.Subtract(result, vec2);
-                    result = Avx.Multiply(result, result);
-                }
-            }
-            loops++;
-        } while (loops < 7);
+            benchmarkAction();
+        }
+
         stopwatch.Stop();
         return stopwatch.Elapsed;
     }
 
-    static TimeSpan BenchmarkAVX512Operations(int iterations, bool multiCore, int threads = 1)
+    private static TimeSpan BenchmarkAVX2Operations(int iterations, bool multiCore, int threads = 1)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
-        int loops = 0;
-        do
+
+        Action avxOperation = () =>
         {
-            if (multiCore)
-            {
-                Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
-                {
-                    for (int j = 0; j < iterations; j++)
-                    {
-                        Vector512<float> vec1 = Vector512.Create(1024.0f);
-                        Vector512<float> vec2 = Vector512.Create(1024.0f);
-                        Vector512<float> resultF = Avx512F.Multiply(vec1, vec2);
-                        resultF = Avx512F.Add(resultF, vec1);
-                        resultF = Avx512F.Add(resultF, vec1);
-                        resultF = Avx512F.Multiply(resultF, vec2);
-                        resultF = Avx512F.Subtract(resultF, vec2);
-                        resultF = Avx512F.Multiply(resultF, resultF);
-                        resultF = Avx512F.Add(resultF, vec1);
-                        resultF = Avx512F.Multiply(resultF, vec2);
-                        resultF = Avx512F.Divide(resultF, vec2);
-                        Vector512<float> resultVBMI = Avx512Vbmi.Multiply(vec1, vec2);
-                        resultVBMI = Avx512Vbmi.Add(resultVBMI, vec1);
-                        resultVBMI = Avx512Vbmi.Add(resultVBMI, vec1);
-                        resultVBMI = Avx512Vbmi.Multiply(resultVBMI, vec2);
-                        resultVBMI = Avx512Vbmi.Subtract(resultVBMI, vec2);
-                        resultVBMI = Avx512Vbmi.Multiply(resultVBMI, resultVBMI);
-                        resultVBMI = Avx512Vbmi.Add(resultVBMI, vec1);
-                        resultVBMI = Avx512Vbmi.Add(resultVBMI, vec2);
-                        Vector512<float> resultBW = Avx512BW.Multiply(vec1, vec2);
-                        resultBW = Avx512BW.Add(resultBW, vec1);
-                        resultBW = Avx512BW.Add(resultBW, vec1);
-                        resultBW = Avx512BW.Multiply(resultBW, vec2);
-                        resultBW = Avx512BW.Subtract(resultBW, vec2);
-                        resultBW = Avx512BW.Multiply(resultBW, resultBW);
-                        resultBW = Avx512BW.Add(resultBW, vec1);
-                        resultBW = Avx512BW.Multiply(resultBW, vec2);
-                        resultBW = Avx512BW.Subtract(resultBW, vec1);
-                        resultBW = Avx512BW.Add(resultBW, vec2);
-                        Vector512<float> resultCD = Avx512CD.Multiply(vec1, vec2);
-                        resultCD = Avx512CD.Add(resultCD, vec1);
-                        resultCD = Avx512CD.Add(resultCD, vec1);
-                        resultCD = Avx512CD.Multiply(resultCD, vec2);
-                        resultCD = Avx512CD.Subtract(resultCD, vec2);
-                        resultCD = Avx512CD.Multiply(resultCD, resultCD);
-                        resultCD = Avx512CD.Add(resultCD, vec1);
-                        resultCD = Avx512CD.Max(resultCD, vec1);
-                        resultCD = Avx512CD.Min(resultCD, vec2);
-                        resultCD = Avx512CD.Multiply(resultCD, vec2);
-                        resultCD = Avx512CD.Subtract(resultCD, vec2);
-                        Vector512<float> resultDQ = Avx512DQ.Multiply(vec1, vec2);
-                        resultDQ = Avx512DQ.Add(resultDQ, vec1);
-                        resultDQ = Avx512DQ.Add(resultDQ, vec1);
-                        resultDQ = Avx512DQ.Multiply(resultDQ, vec2);
-                        resultDQ = Avx512DQ.Subtract(resultDQ, vec2);
-                        resultDQ = Avx512DQ.Multiply(resultDQ, resultDQ);
-                        resultDQ = Avx512DQ.Add(resultDQ, vec1);
-                        resultDQ = Avx512DQ.Multiply(resultDQ, resultDQ);
-                        resultDQ = Avx512DQ.Subtract(resultDQ, vec2);
-                        resultDQ = Avx512DQ.Multiply(resultDQ, vec2);
-                    }
-                });
-            }
-            else
-            {
-                for (int i = 0; i < iterations; i++)
-                {
-                    Vector512<float> vec1 = Vector512.Create(512.0f);
-                    Vector512<float> vec2 = Vector512.Create(512.0f);
-                    Vector512<float> resultF = Avx512F.Multiply(vec1, vec2);
-                    resultF = Avx512F.Add(resultF, vec1);
-                    resultF = Avx512F.Add(resultF, vec1);
-                    resultF = Avx512F.Multiply(resultF, vec2);
-                    resultF = Avx512F.Subtract(resultF, vec2);
-                    resultF = Avx512F.Multiply(resultF, resultF);
-                    resultF = Avx512F.Add(resultF, vec1);
-                    resultF = Avx512F.Multiply(resultF, vec2);
-                    resultF = Avx512F.Divide(resultF, vec2);
-                    Vector512<float> resultVBMI = Avx512Vbmi.Multiply(vec1, vec2);
-                    resultVBMI = Avx512Vbmi.Add(resultVBMI, vec1);
-                    resultVBMI = Avx512Vbmi.Add(resultVBMI, vec1);
-                    resultVBMI = Avx512Vbmi.Multiply(resultVBMI, vec2);
-                    resultVBMI = Avx512Vbmi.Subtract(resultVBMI, vec2);
-                    resultVBMI = Avx512Vbmi.Multiply(resultVBMI, resultVBMI);
-                    resultVBMI = Avx512Vbmi.Add(resultVBMI, vec1);
-                    resultVBMI = Avx512Vbmi.Add(resultVBMI, vec2);
-                    Vector512<float> resultBW = Avx512BW.Multiply(vec1, vec2);
-                    resultBW = Avx512BW.Add(resultBW, vec1);
-                    resultBW = Avx512BW.Add(resultBW, vec1);
-                    resultBW = Avx512BW.Multiply(resultBW, vec2);
-                    resultBW = Avx512BW.Subtract(resultBW, vec2);
-                    resultBW = Avx512BW.Multiply(resultBW, resultBW);
-                    resultBW = Avx512BW.Add(resultBW, vec1);
-                    resultBW = Avx512BW.Multiply(resultBW, vec2);
-                    resultBW = Avx512BW.Subtract(resultBW, vec1);
-                    resultBW = Avx512BW.Add(resultBW, vec2);
-                    Vector512<float> resultCD = Avx512CD.Multiply(vec1, vec2);
-                    resultCD = Avx512CD.Add(resultCD, vec1);
-                    resultCD = Avx512CD.Add(resultCD, vec1);
-                    resultCD = Avx512CD.Multiply(resultCD, vec2);
-                    resultCD = Avx512CD.Subtract(resultCD, vec2);
-                    resultCD = Avx512CD.Multiply(resultCD, resultCD);
-                    resultCD = Avx512CD.Add(resultCD, vec1);
-                    resultCD = Avx512CD.Max(resultCD, vec1);
-                    resultCD = Avx512CD.Min(resultCD, vec2);
-                    resultCD = Avx512CD.Multiply(resultCD, vec2);
-                    resultCD = Avx512CD.Subtract(resultCD, vec2);
-                    Vector512<float> resultDQ = Avx512DQ.Multiply(vec1, vec2);
-                    resultDQ = Avx512DQ.Add(resultDQ, vec1);
-                    resultDQ = Avx512DQ.Add(resultDQ, vec1);
-                    resultDQ = Avx512DQ.Multiply(resultDQ, vec2);
-                    resultDQ = Avx512DQ.Subtract(resultDQ, vec2);
-                    resultDQ = Avx512DQ.Multiply(resultDQ, resultDQ);
-                    resultDQ = Avx512DQ.Add(resultDQ, vec1);
-                    resultDQ = Avx512DQ.Multiply(resultDQ, resultDQ);
-                    resultDQ = Avx512DQ.Subtract(resultDQ, vec2);
-                    resultDQ = Avx512DQ.Multiply(resultDQ, vec2);
-                }
-            }
-            loops++;
-        } while (loops < 7);
-        stopwatch.Stop();
-        return stopwatch.Elapsed;
-    }
+            Vector256<float> vec1 = Vector256.Create(1024.0f);
+            Vector256<float> vec2 = Vector256.Create(1024.0f);
+            Vector256<float> result = Avx2.Multiply(vec1, vec2);
 
-    static TimeSpan BenchmarkFibonacci(int iterations, bool multiCore, int threads = 1)
-    {
-        Stopwatch stopwatch = Stopwatch.StartNew();
+            for (int j = 0; j < iterations; j++)
+            {
+                result = Avx2.Multiply(result, vec1);
+                result = Avx2.Add(result, vec2);
+                result = Avx2.Subtract(result, vec1);
+                result = Avx2.Multiply(result, vec2);
+                result = Avx2.Or(result, vec1);
+                result = Avx2.Xor(result, vec2);
+                result = Avx.Multiply(result, vec2);
+                result = Avx.Reciprocal(result);
+                result = Avx.ReciprocalSqrt(result);
+                result = Avx.Sqrt(result);
+                result = Avx.Subtract(result, vec1);
+                result = Avx.Add(result, vec2);
+                result = Avx.Divide(result, vec1);
+                result = Avx.Multiply(result, vec2);
+            }
+        };
+
+        int loops = 7;
+
         if (multiCore)
         {
             Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
             {
-                for (int j = 0; j < iterations; j++)
+                for (int loop = 0; loop < loops; loop++)
                 {
-                    Fibonacci(30);
+                    avxOperation();
                 }
             });
         }
         else
         {
-            for (int i = 0; i < iterations; i++)
+            for (int loop = 0; loop < loops; loop++)
+            {
+                avxOperation();
+            }
+        }
+
+        stopwatch.Stop();
+        return stopwatch.Elapsed;
+    }
+
+    private static TimeSpan BenchmarkAVX512Operations(int iterations, bool multiCore, int threads = 1)
+    {
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
+        Action avx512Operation = () =>
+        {
+            Vector512<float> vec1 = Vector512.Create(1024.0f);
+            Vector512<float> vec2 = Vector512.Create(1024.0f);
+            Vector512<float> result = Avx512F.Multiply(vec1, vec2);
+
+            for (int j = 0; j < iterations; j++)
+            {
+                result = Avx512F.Multiply(result, vec1);
+                result = Avx512F.Add(result, vec2);
+                result = Avx512F.Subtract(result, vec1);
+                result = Avx512F.Multiply(result, vec2);
+                result = Avx512F.Multiply(result, result);
+                result = Avx512F.Divide(result, vec2);
+
+                result = Avx512Vbmi.Multiply(result, vec1);
+                result = Avx512Vbmi.Add(result, vec2);
+                result = Avx512Vbmi.Subtract(result, vec1);
+                result = Avx512Vbmi.Multiply(result, vec2);
+                result = Avx512Vbmi.Multiply(result, result);
+
+                result = Avx512BW.Multiply(result, vec1);
+                result = Avx512BW.Add(result, vec2);
+                result = Avx512BW.Subtract(result, vec1);
+                result = Avx512BW.Multiply(result, vec2);
+                result = Avx512BW.Subtract(result, vec1);
+                result = Avx512BW.Add(result, vec2);
+
+                result = Avx512CD.Multiply(result, vec1);
+                result = Avx512CD.Add(result, vec2);
+                result = Avx512CD.Subtract(result, vec1);
+                result = Avx512CD.Max(result, vec1);
+                result = Avx512CD.Min(result, vec2);
+                result = Avx512CD.Multiply(result, result);
+
+                result = Avx512DQ.Multiply(result, vec1);
+                result = Avx512DQ.Add(result, vec2);
+                result = Avx512DQ.Subtract(result, vec1);
+                result = Avx512DQ.Multiply(result, vec2);
+                result = Avx512DQ.Multiply(result, result);
+            }
+        };
+
+        int loops = 7;
+
+        if (multiCore)
+        {
+            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
+            {
+                for (int loop = 0; loop < loops; loop++)
+                {
+                    avx512Operation();
+                }
+            });
+        }
+        else
+        {
+            for (int loop = 0; loop < loops; loop++)
+            {
+                avx512Operation();
+            }
+        }
+
+        stopwatch.Stop();
+        return stopwatch.Elapsed;
+    }
+
+    private static TimeSpan BenchmarkFibonacci(int iterations, bool multiCore, int threads = 1)
+    {
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
+        Action fibonacciAction = () =>
+        {
+            for (int j = 0; j < iterations; j++)
             {
                 Fibonacci(30);
             }
-        }
-        stopwatch.Stop();
-        return stopwatch.Elapsed;
-    }
+        };
 
-    static int Fibonacci(int n)
-    {
-        if (n <= 1) return n;
-        return Fibonacci(n - 1) + Fibonacci(n - 2);
-    }
-
-    static TimeSpan BenchmarkPrimeNumbers(int iterations, bool multiCore, int threads = 1)
-    {
-        Stopwatch stopwatch = Stopwatch.StartNew();
         if (multiCore)
         {
-            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
-            {
-                for (int j = 0; j < iterations; j++)
-                {
-                    SieveOfEratosthenes(10000);
-                }
-            });
+            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ => fibonacciAction());
         }
         else
         {
-            for (int i = 0; i < iterations; i++)
-            {
-                SieveOfEratosthenes(10000);
-            }
+            fibonacciAction();
         }
+
         stopwatch.Stop();
         return stopwatch.Elapsed;
     }
 
-    static void SieveOfEratosthenes(int n)
+    private static int Fibonacci(int n)
+    {
+        if (n <= 1) return n;
+
+        int a = 0;
+        int b = 1;
+
+        for (int i = 2; i <= n; i++)
+        {
+            int temp = a + b;
+            a = b;
+            b = temp;
+        }
+
+        return b;
+    }
+
+    private static TimeSpan BenchmarkPrimeNumbers(int iterations, bool multiCore, int threads = 1)
+    {
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
+        Action primeCalculationAction = () =>
+        {
+            for (int j = 0; j < iterations; j++)
+            {
+                SieveOfEratosthenes(10000);
+            }
+        };
+
+        if (multiCore)
+        {
+            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ => primeCalculationAction());
+        }
+        else
+        {
+            primeCalculationAction();
+        }
+
+        stopwatch.Stop();
+        return stopwatch.Elapsed;
+    }
+
+    private static void SieveOfEratosthenes(int n)
     {
         bool[] prime = new bool[n + 1];
-        for (int i = 0; i <= n; i++)
-            prime[i] = true;
+        Array.Fill(prime, true);
 
-        for (int p = 2; p * p <= n; p++)
+        prime[0] = prime[1] = false;
+
+        int sqrtN = (int)Math.Sqrt(n);
+        for (int p = 2; p <= sqrtN; p++)
         {
             if (prime[p])
             {
@@ -731,203 +709,197 @@ class CPUBenchmark
         }
     }
 
-    static TimeSpan BenchmarkQuickSort(int iterations, bool multiCore, int threads = 1)
+    private static TimeSpan BenchmarkQuickSort(int iterations, bool multiCore, int threads = 1)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
-        if (multiCore)
-        {
-            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
-            {
-                Random rand = new Random();
-                for (int j = 0; j < iterations; j++)
-                {
-                    int[] array = new int[10000];
-                    for (int k = 0; k < array.Length; k++)
-                    {
-                        array[k] = rand.Next();
-                    }
-                    QuickSort(array, 0, array.Length - 1);
-                }
-            });
-        }
-        else
+
+        Action quickSortAction = () =>
         {
             Random rand = new Random();
-            for (int i = 0; i < iterations; i++)
+            for (int j = 0; j < iterations; j++)
             {
                 int[] array = new int[10000];
-                for (int j = 0; j < array.Length; j++)
+                for (int k = 0; k < array.Length; k++)
                 {
-                    array[j] = rand.Next();
+                    array[k] = rand.Next();
                 }
                 QuickSort(array, 0, array.Length - 1);
             }
+        };
+
+        if (multiCore)
+        {
+            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ => quickSortAction());
         }
+        else
+        {
+            quickSortAction();
+        }
+
         stopwatch.Stop();
         return stopwatch.Elapsed;
     }
 
-    static void QuickSort(int[] arr, int left, int right)
+    private static void QuickSort(int[] arr, int left, int right)
     {
-        if (left < right)
+        while (left < right)
         {
             int pivot = Partition(arr, left, right);
-            if (pivot > 1)
-                QuickSort(arr, left, pivot - 1);
-            if (pivot + 1 < right)
-                QuickSort(arr, pivot + 1, right);
-        }
-    }
 
-    static int Partition(int[] arr, int left, int right)
-    {
-        int pivot = arr[left];
-        while (true)
-        {
-            while (arr[left] < pivot)
-                left++;
-            while (arr[right] > pivot)
-                right--;
-            if (left < right)
+            if (pivot - left < right - pivot)
             {
-                if (arr[left] == arr[right]) return right;
-
-                int temp = arr[left];
-                arr[left] = arr[right];
-                arr[right] = temp;
+                QuickSort(arr, left, pivot - 1);
+                left = pivot + 1;
             }
             else
             {
-                return right;
+                QuickSort(arr, pivot + 1, right);
+                right = pivot - 1;
             }
         }
     }
 
-    static TimeSpan BenchmarkSHA256(int iterations, bool multiCore, int threads = 1)
+    private static int Partition(int[] arr, int left, int right)
+    {
+        int pivot = arr[left];
+        int l = left + 1;
+        int r = right;
+
+        while (true)
+        {
+            while (l <= r && arr[l] <= pivot) l++;
+            while (r >= l && arr[r] >= pivot) r--;
+
+            if (l >= r)
+            {
+                break;
+            }
+
+            int temp = arr[l];
+            arr[l] = arr[r];
+            arr[r] = temp;
+        }
+
+        arr[left] = arr[r];
+        arr[r] = pivot;
+
+        return r;
+    }
+
+    private static TimeSpan BenchmarkSHA256(int iterations, bool multiCore, int threads = 1)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
-        if (multiCore)
-        {
-            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
-            {
-                using (SHA256 sha256 = SHA256.Create())
-                {
-                    for (int j = 0; j < iterations; j++)
-                    {
-                        byte[] data = new byte[1024];
-                        byte[] hash = sha256.ComputeHash(data);
-                    }
-                }
-            });
-        }
-        else
+        byte[] data = new byte[1024];
+
+        void Sha256Action()
         {
             using (SHA256 sha256 = SHA256.Create())
             {
+                for (int j = 0; j < iterations; j++)
+                {
+                    sha256.ComputeHash(data);
+                }
+            }
+        }
+
+        if (multiCore)
+        {
+            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ => Sha256Action());
+        }
+        else
+        {
+            Sha256Action();
+        }
+
+        stopwatch.Stop();
+        return stopwatch.Elapsed;
+    }
+
+    private static TimeSpan BenchmarkMatrixMultiplication(int iterations, bool multiCore, int threads = 1)
+    {
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
+        void MatrixMultiplicationTask()
+        {
+            int[,] matrixA = new int[100, 100];
+            int[,] matrixB = new int[100, 100];
+            int[,] matrixC = new int[100, 100];
+            Random rand = new Random();
+
+            for (int x = 0; x < 100; x++)
+            {
+                for (int y = 0; y < 100; y++)
+                {
+                    matrixA[x, y] = rand.Next();
+                    matrixB[x, y] = rand.Next();
+                }
+            }
+
+            for (int x = 0; x < 100; x++)
+            {
+                for (int y = 0; y < 100; y++)
+                {
+                    int sum = 0;
+                    for (int z = 0; z < 100; z++)
+                    {
+                        sum += matrixA[x, z] * matrixB[z, y];
+                    }
+                    matrixC[x, y] = sum;
+                }
+            }
+        }
+
+        if (multiCore)
+        {
+            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
+            {
+                for (int j = 0; j < iterations; j++)
+                {
+                    MatrixMultiplicationTask();
+                }
+            });
+        }
+        else
+        {
+            for (int i = 0; i < iterations; i++)
+            {
+                MatrixMultiplicationTask();
+            }
+        }
+
+        stopwatch.Stop();
+        return stopwatch.Elapsed;
+    }
+
+    private static TimeSpan BenchmarkRandomNumberGeneration(int iterations, bool multiCore, int threads = 1)
+    {
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        if (multiCore)
+        {
+            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
+            {
+                int seed = Environment.TickCount * Thread.CurrentThread.ManagedThreadId;
+                Random rand = new Random(seed);
                 for (int i = 0; i < iterations; i++)
                 {
-                    byte[] data = new byte[1024];
-                    byte[] hash = sha256.ComputeHash(data);
-                }
-            }
-        }
-        stopwatch.Stop();
-        return stopwatch.Elapsed;
-    }
-
-    static TimeSpan BenchmarkMatrixMultiplication(int iterations, bool multiCore, int threads = 1)
-    {
-        Stopwatch stopwatch = Stopwatch.StartNew();
-        if (multiCore)
-        {
-            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
-            {
-                for (int j = 0; j < iterations; j++)
-                {
-                    int[,] matrixA = new int[100, 100];
-                    int[,] matrixB = new int[100, 100];
-                    int[,] matrixC = new int[100, 100];
-                    Random rand = new Random();
-                    for (int x = 0; x < 100; x++)
-                    {
-                        for (int y = 0; y < 100; y++)
-                        {
-                            matrixA[x, y] = rand.Next();
-                            matrixB[x, y] = rand.Next();
-                        }
-                    }
-                    for (int x = 0; x < 100; x++)
-                    {
-                        for (int y = 0; y < 100; y++)
-                        {
-                            for (int z = 0; z < 100; z++)
-                            {
-                                matrixC[x, y] += matrixA[x, z] * matrixB[z, y];
-                            }
-                        }
-                    }
+                    _ = rand.NextInt64();
                 }
             });
         }
         else
         {
+            int seed = Environment.TickCount;
+            Random rand = new Random(seed);
             for (int i = 0; i < iterations; i++)
             {
-                int[,] matrixA = new int[100, 100];
-                int[,] matrixB = new int[100, 100];
-                int[,] matrixC = new int[100, 100];
-                Random rand = new Random();
-                for (int x = 0; x < 100; x++)
-                {
-                    for (int y = 0; y < 100; y++)
-                    {
-                        matrixA[x, y] = rand.Next();
-                        matrixB[x, y] = rand.Next();
-                    }
-                }
-                for (int x = 0; x < 100; x++)
-                {
-                    for (int y = 0; y < 100; y++)
-                    {
-                        for (int z = 0; z < 100; z++)
-                        {
-                            matrixC[x, y] += matrixA[x, z] * matrixB[z, y];
-                        }
-                    }
-                }
+                _ = rand.NextInt64();
             }
         }
         stopwatch.Stop();
         return stopwatch.Elapsed;
     }
 
-    static TimeSpan BenchmarkRandomNumberGeneration(int iterations, bool multiCore, int threads = 1)
-    {
-        Stopwatch stopwatch = Stopwatch.StartNew();
-        if (multiCore)
-        {
-            Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
-            {
-                Random rand = new Random();
-                for (int j = 0; j < iterations; j++)
-                {
-                    double value = rand.NextDouble();
-                }
-            });
-        }
-        else
-        {
-            Random rand = new Random();
-            for (int i = 0; i < iterations; i++)
-            {
-                double value = rand.NextDouble();
-            }
-        }
-        stopwatch.Stop();
-        return stopwatch.Elapsed;
-    }
-
-    static TimeSpan BenchmarkBranchPrediction(int iterations, bool predictable, bool multiCore, int threads = 1)
+    private static TimeSpan BenchmarkBranchPrediction(int iterations, bool predictable, bool multiCore, int threads = 1)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -936,7 +908,8 @@ class CPUBenchmark
             Parallel.For(0, threads, new ParallelOptions { MaxDegreeOfParallelism = threads }, _ =>
             {
                 long result = 0;
-                Random random = new Random();
+                int seed = Environment.TickCount * Thread.CurrentThread.ManagedThreadId;
+                Random random = new Random(seed);
 
                 for (int j = 0; j < iterations; j++)
                 {
@@ -944,20 +917,14 @@ class CPUBenchmark
                     {
                         for (int k = 0; k < 1000; k++)
                         {
-                            if (k % 2 == 0)
-                                result += k;
-                            else
-                                result -= k;
+                            result += (k % 2 == 0) ? k : -k;
                         }
                     }
                     else
                     {
                         for (int k = 0; k < 1000; k++)
                         {
-                            if (random.Next(0, 2) == 0)
-                                result += k;
-                            else
-                                result -= k;
+                            result += (random.Next(0, 2) == 0) ? k : -k;
                         }
                     }
                 }
@@ -966,7 +933,8 @@ class CPUBenchmark
         else
         {
             long result = 0;
-            Random random = new Random();
+            int seed = Environment.TickCount;
+            Random random = new Random(seed);
 
             for (int i = 0; i < iterations; i++)
             {
@@ -974,20 +942,14 @@ class CPUBenchmark
                 {
                     for (int k = 0; k < 1000; k++)
                     {
-                        if (k % 2 == 0)
-                            result += k;
-                        else
-                            result -= k;
+                        result += (k % 2 == 0) ? k : -k;
                     }
                 }
                 else
                 {
                     for (int k = 0; k < 1000; k++)
                     {
-                        if (random.Next(0, 2) == 0)
-                            result += k;
-                        else
-                            result -= k;
+                        result += (random.Next(0, 2) == 0) ? k : -k;
                     }
                 }
             }
@@ -997,7 +959,7 @@ class CPUBenchmark
         return stopwatch.Elapsed;
     }
 
-    static TimeSpan BenchmarkImageBlur(int iterations, bool multiCore, int threads = 1)
+    private static TimeSpan BenchmarkImageBlur(int iterations, bool multiCore, int threads = 1)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
         int matrixWidth = 3840;
@@ -1020,23 +982,7 @@ class CPUBenchmark
             {
                 for (int iter = 0; iter < iterations; iter++)
                 {
-                    for (int i = 1; i < matrixWidth - 1; i++)
-                    {
-                        for (int j = 1; j < matrixHeight - 1; j++)
-                        {
-                            int sum = 0;
-                            int count = 0;
-                            for (int ki = -1; ki <= 1; ki++)
-                            {
-                                for (int kj = -1; kj <= 1; kj++)
-                                {
-                                    sum += image[i + ki, j + kj];
-                                    count++;
-                                }
-                            }
-                            output[i, j] = sum / count;
-                        }
-                    }
+                    ApplyBlur(matrixWidth, matrixHeight, image, output);
                 }
             });
         }
@@ -1044,23 +990,7 @@ class CPUBenchmark
         {
             for (int iter = 0; iter < iterations; iter++)
             {
-                for (int i = 1; i < matrixWidth - 1; i++)
-                {
-                    for (int j = 1; j < matrixHeight - 1; j++)
-                    {
-                        int sum = 0;
-                        int count = 0;
-                        for (int ki = -1; ki <= 1; ki++)
-                        {
-                            for (int kj = -1; kj <= 1; kj++)
-                            {
-                                sum += image[i + ki, j + kj];
-                                count++;
-                            }
-                        }
-                        output[i, j] = sum / count;
-                    }
-                }
+                ApplyBlur(matrixWidth, matrixHeight, image, output);
             }
         }
 
@@ -1068,136 +998,157 @@ class CPUBenchmark
         return stopwatch.Elapsed;
     }
 
-    public static TimeSpan BenchmarkCodeCompilation(int iterations, bool multiCore, int threads = 1)
+    private static void ApplyBlur(int width, int height, int[,] image, int[,] output)
+    {
+        for (int i = 1; i < width - 1; i++)
+        {
+            for (int j = 1; j < height - 1; j++)
+            {
+                int sum = 0;
+                int count = 0;
+                for (int ki = -1; ki <= 1; ki++)
+                {
+                    for (int kj = -1; kj <= 1; kj++)
+                    {
+                        sum += image[i + ki, j + kj];
+                        count++;
+                    }
+                }
+                output[i, j] = sum / count;
+            }
+        }
+    }
+
+    private static TimeSpan BenchmarkCodeCompilation(int iterations, bool multiCore, int threads = 1)
     {
         string code = @"
-        using System;
-        using System.Collections.Generic;
-        using System.Linq;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
-        public class Product
+    public class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+        public int QuantityAvailable { get; set; }
+
+        public Product(int id, string name, decimal price, int quantityAvailable)
         {
-            public int Id { get; set; }
-            public string Name { get; set; }
-            public decimal Price { get; set; }
-            public int QuantityAvailable { get; set; }
+            Id = id;
+            Name = name;
+            Price = price;
+            QuantityAvailable = quantityAvailable;
+        }
 
-            public Product(int id, string name, decimal price, int quantityAvailable)
+        public override string ToString()
+        {
+            return $""{Id}: {Name} - {Price:C} (Available: {QuantityAvailable})"";
+        }
+    }
+
+    public class Order
+    {
+        public int OrderId { get; set; }
+        public List<OrderItem> Items { get; set; } = new List<OrderItem>();
+
+        public void AddItem(Product product, int quantity)
+        {
+            if (product.QuantityAvailable >= quantity)
             {
-                Id = id;
-                Name = name;
-                Price = price;
-                QuantityAvailable = quantityAvailable;
+                Items.Add(new OrderItem { Product = product, Quantity = quantity });
+                product.QuantityAvailable -= quantity;
             }
-
-            public override string ToString()
+            else
             {
-                return $""{Id}: {Name} - {Price:C} (Available: {QuantityAvailable})"";
+                Console.WriteLine($""Insufficient stock for {product.Name}"");
             }
         }
 
-        public class Order
+        public decimal GetTotal()
         {
-            public int OrderId { get; set; }
-            public List<OrderItem> Items { get; set; } = new List<OrderItem>();
-
-            public void AddItem(Product product, int quantity)
-            {
-                if (product.QuantityAvailable >= quantity)
-                {
-                    Items.Add(new OrderItem { Product = product, Quantity = quantity });
-                    product.QuantityAvailable -= quantity;
-                }
-                else
-                {
-                    Console.WriteLine($""Insufficient stock for {product.Name}"");
-                }
-            }
-
-            public decimal GetTotal()
-            {
-                return Items.Sum(item => item.Product.Price * item.Quantity);
-            }
-
-            public override string ToString()
-            {
-                var orderSummary = $""Order {OrderId}:\n"";
-                foreach (var item in Items)
-                {
-                    orderSummary += $""- {item.Product.Name} x {item.Quantity} = {item.Product.Price * item.Quantity:C}\n"";
-                }
-                orderSummary += $""Total: {GetTotal():C}"";
-                return orderSummary;
-            }
+            return Items.Sum(item => item.Product.Price * item.Quantity);
         }
 
-        public class OrderItem
+        public override string ToString()
         {
-            public Product Product { get; set; }
-            public int Quantity { get; set; }
+            var orderSummary = $""Order {OrderId}:\n"";
+            foreach (var item in Items)
+            {
+                orderSummary += $""- {item.Product.Name} x {item.Quantity} = {item.Product.Price * item.Quantity:C}\n"";
+            }
+            orderSummary += $""Total: {GetTotal():C}"";
+            return orderSummary;
         }
+    }
 
-        public class Program
+    public class OrderItem
+    {
+        public Product Product { get; set; }
+        public int Quantity { get; set; }
+    }
+
+    public class Program
+    {
+        private static List<Product> _products = new List<Product>
         {
-            private static List<Product> _products = new List<Product>
+            new Product(1, ""Laptop"", 1200.00m, 10),
+            new Product(2, ""Smartphone"", 800.00m, 15),
+            new Product(3, ""Tablet"", 300.00m, 20)
+        };
+
+        public static void Main(string[] args)
+        {
+            Console.WriteLine(""Welcome to the Console Ordering System"");
+
+            var order = new Order { OrderId = 1 };
+            bool ordering = true;
+
+            while (ordering)
             {
-                new Product(1, ""Laptop"", 1200.00m, 10),
-                new Product(2, ""Smartphone"", 800.00m, 15),
-                new Product(3, ""Tablet"", 300.00m, 20)
-            };
-
-            public static void Main(string[] args)
-            {
-                Console.WriteLine(""Welcome to the Console Ordering System"");
-
-                var order = new Order { OrderId = 1 };
-                bool ordering = true;
-
-                while (ordering)
+                Console.WriteLine(""\nAvailable Products:"");
+                foreach (var product in _products)
                 {
-                    Console.WriteLine(""\nAvailable Products:"");
-                    foreach (var product in _products)
-                    {
-                        Console.WriteLine(product);
-                    }
+                    Console.WriteLine(product);
+                }
 
-                    Console.WriteLine(""\nEnter the product ID to add to your order (or type 'done' to finish):"");
-                    var input = Console.ReadLine();
+                Console.WriteLine(""\nEnter the product ID to add to your order (or type 'done' to finish):"");
+                var input = Console.ReadLine();
 
-                    if (input.ToLower() == ""done"")
+                if (input.ToLower() == ""done"")
+                {
+                    ordering = false;
+                }
+                else if (int.TryParse(input, out int productId))
+                {
+                    var product = _products.FirstOrDefault(p => p.Id == productId);
+                    if (product != null)
                     {
-                        ordering = false;
-                    }
-                    else if (int.TryParse(input, out int productId))
-                    {
-                        var product = _products.FirstOrDefault(p => p.Id == productId);
-                        if (product != null)
+                        Console.WriteLine($""Enter quantity for {product.Name}:"");
+                        if (int.TryParse(Console.ReadLine(), out int quantity))
                         {
-                            Console.WriteLine($""Enter quantity for {product.Name}:"");
-                            if (int.TryParse(Console.ReadLine(), out int quantity))
-                            {
-                                order.AddItem(product, quantity);
-                            }
-                            else
-                            {
-                                Console.WriteLine(""Invalid quantity. Please try again."");
-                            }
+                            order.AddItem(product, quantity);
                         }
                         else
                         {
-                            Console.WriteLine(""Invalid product ID. Please try again."");
+                            Console.WriteLine(""Invalid quantity. Please try again."");
                         }
                     }
                     else
                     {
-                        Console.WriteLine(""Invalid input. Please try again."");
+                        Console.WriteLine(""Invalid product ID. Please try again."");
                     }
                 }
-
-                Console.WriteLine(""\nOrder Summary:"");
-                Console.WriteLine(order);
+                else
+                {
+                    Console.WriteLine(""Invalid input. Please try again."");
+                }
             }
-        }";
+
+            Console.WriteLine(""\nOrder Summary:"");
+            Console.WriteLine(order);
+        }
+    }";
 
         Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -1242,7 +1193,8 @@ class CPUBenchmark
         return stopwatch.Elapsed;
     }
 
-    static TimeSpan BenchmarkRayTracing(int iterations, bool multiCore, int threads = 1)
+
+    private static TimeSpan BenchmarkRayTracing(int iterations, bool multiCore, int threads = 1)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -1262,7 +1214,7 @@ class CPUBenchmark
         return stopwatch.Elapsed;
     }
 
-    static void RenderScene(int iterations)
+    private static void RenderScene(int iterations)
     {
         const int width = 128;
         const int height = 72;
@@ -1298,7 +1250,7 @@ class CPUBenchmark
         }
     }
 
-    static Vector3 Trace(Ray ray, Sphere[] spheres, int depth)
+    private static Vector3 Trace(Ray ray, Sphere[] spheres, int depth)
     {
         if (depth <= 0)
             return Vector3.Zero;
@@ -1316,7 +1268,7 @@ class CPUBenchmark
         return (1.0f - t) * Vector3.One + t * new Vector3(0.5f, 0.7f, 1.0f);
     }
 
-    static bool HitSphere(Ray ray, Sphere[] spheres, float tMin, float tMax, ref HitRecord hit)
+    private static bool HitSphere(Ray ray, Sphere[] spheres, float tMin, float tMax, ref HitRecord hit)
     {
         HitRecord tempHit = default;
         bool hitAnything = false;
@@ -1335,7 +1287,7 @@ class CPUBenchmark
         return hitAnything;
     }
 
-    static Vector3 RandomInUnitSphere()
+    private static Vector3 RandomInUnitSphere()
     {
         Random random = new Random();
         Vector3 p;
@@ -1347,13 +1299,13 @@ class CPUBenchmark
         return p;
     }
 
-    static float RandomFloat()
+    private static float RandomFloat()
     {
         Random random = new Random();
         return (float)random.NextDouble();
     }
 
-    struct Ray
+    private struct Ray
     {
         public Vector3 Origin;
         public Vector3 Direction;
@@ -1370,14 +1322,14 @@ class CPUBenchmark
         }
     }
 
-    struct HitRecord
+    private struct HitRecord
     {
         public Vector3 Point;
         public Vector3 Normal;
         public float T;
     }
 
-    struct Sphere
+    private struct Sphere
     {
         public Vector3 Center;
         public float Radius;
@@ -1423,7 +1375,7 @@ class CPUBenchmark
         }
     }
 
-    static TimeSpan BenchmarkCompressionDecompression(int iterations, bool multiCore, int threads = 1)
+    private static TimeSpan BenchmarkCompressionDecompression(int iterations, bool multiCore, int threads = 1)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
         int dataSize = 128 * 1024 * 1024;
@@ -1465,9 +1417,6 @@ class CPUBenchmark
                     {
                         throw new Exception("Decompressed data does not match original data.");
                     }
-
-                    compressedData = null;
-                    decompressedData = null;
                 }
             });
         }
@@ -1503,9 +1452,6 @@ class CPUBenchmark
                 {
                     throw new Exception("Decompressed data does not match original data.");
                 }
-
-                compressedData = null;
-                decompressedData = null;
             }
         }
 
@@ -1517,9 +1463,7 @@ class CPUBenchmark
         return stopwatch.Elapsed;
     }
 
-
-
-    static TimeSpan BenchmarkHTML5Performance(int iterations, bool multiCore, int threads = 1)
+    private static TimeSpan BenchmarkHTML5Performance(int iterations, bool multiCore, int threads = 1)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -1529,164 +1473,9 @@ class CPUBenchmark
             {
                 for (int j = 0; j < iterations; j++)
                 {
-                    string html = @"
-<html>
-<head>
-    <title>My Blog</title>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <link rel='stylesheet' href='styles.css'>
-</head>
-<body>
-    <header>
-        <h1>Welcome to My Blog</h1>
-        <nav>
-            <ul>
-                <li><a href='#home'>Home</a></li>
-                <li><a href='#about'>About</a></li>
-                <li><a href='#contact'>Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <section id='home'>
-            <article>
-                <h2>Blog Post 1</h2>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam non urna magna.</p>
-                <button id='readMoreBtn'>Read More</button>
-            </article>
-            <article>
-                <h2>Blog Post 2</h2>
-                <p>Curabitur vitae nisi vehicula, ullamcorper lectus nec, sollicitudin lectus.</p>
-            </article>
-        </section>
-        <section id='about'>
-            <h2>About Me</h2>
-            <p>This is a blog about web development and programming. Stay tuned for more updates!</p>
-        </section>
-        <section id='contact'>
-            <h2>Contact</h2>
-            <form id='contactForm'>
-                <label for='name'>Name:</label>
-                <input type='text' id='name' name='name' required>
-                <label for='email'>Email:</label>
-                <input type='email' id='email' name='email' required>
-                <label for='message'>Message:</label>
-                <textarea id='message' name='message' required></textarea>
-                <button type='submit'>Send</button>
-            </form>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2024 My Blog. All rights reserved.</p>
-    </footer>
-</body>
-</html>";
-
-                    string css = @"
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    margin: 0;
-    padding: 0;
-}
-
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 10px 0;
-    text-align: center;
-}
-
-nav ul {
-    list-style: none;
-    padding: 0;
-}
-
-nav ul li {
-    display: inline;
-    margin: 0 10px;
-}
-
-nav ul li a {
-    color: #fff;
-    text-decoration: none;
-}
-
-main {
-    padding: 20px;
-}
-
-article {
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: #fff;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-footer {
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    padding: 10px 0;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-}
-
-form label {
-    margin: 5px 0;
-}
-
-form input, form textarea {
-    margin-bottom: 10px;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-";
-
-                    string js = @"
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Page loaded');
-
-    var readMoreBtn = document.getElementById('readMoreBtn');
-    if (readMoreBtn) {
-        readMoreBtn.addEventListener('click', function() {
-            alert('Read More button clicked!');
-        });
-    }
-
-    var contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            alert('Form submitted');
-        });
-    }
-});
-";
-
-
+                    string html = GetHTMLContent();
+                    string css = GetCSSContent();
+                    string js = GetJSContent();
 
                     ParseHTML(html);
                     ParseCSS(css);
@@ -1698,7 +1487,23 @@ document.addEventListener('DOMContentLoaded', function() {
         {
             for (int i = 0; i < iterations; i++)
             {
-                string html = @"
+                string html = GetHTMLContent();
+                string css = GetCSSContent();
+                string js = GetJSContent();
+
+                ParseHTML(html);
+                ParseCSS(css);
+                ExecuteJS(js);
+            }
+        }
+
+        stopwatch.Stop();
+        return stopwatch.Elapsed;
+    }
+
+    private static string GetHTMLContent()
+    {
+        return @"
 <html>
 <head>
     <title>My Blog</title>
@@ -1751,8 +1556,11 @@ document.addEventListener('DOMContentLoaded', function() {
     </footer>
 </body>
 </html>";
+    }
 
-                string css = @"
+    private static string GetCSSContent()
+    {
+        return @"
 body {
     font-family: Arial, sans-serif;
     background-color: #f5f5f5;
@@ -1831,10 +1639,12 @@ form input, form textarea {
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 5px;
-}
-";
+}";
+    }
 
-                string js = @"
+    private static string GetJSContent()
+    {
+        return @"
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Page loaded');
 
@@ -1854,17 +1664,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 ";
-
-
-
-                ParseHTML(html);
-                ParseCSS(css);
-                ExecuteJS(js);
-            }
-        }
-
-        stopwatch.Stop();
-        return stopwatch.Elapsed;
     }
 
     static Dictionary<string, List<Dictionary<string, string>>> ParseHTML(string html)
@@ -1968,7 +1767,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return eventHandlers;
     }
 
-    static TimeSpan BenchmarkNeuralNetworkProcessing(int iterations, bool multiCore, int threads = 1)
+    private static TimeSpan BenchmarkNeuralNetworkProcessing(int iterations, bool multiCore, int threads = 1)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -1978,79 +1777,7 @@ document.addEventListener('DOMContentLoaded', function() {
             {
                 for (int j = 0; j < iterations; j++)
                 {
-                    int inputSize = 256;
-                    int hiddenSize1 = 128;
-                    int hiddenSize2 = 64;
-                    int outputSize = 32;
-
-                    float[,] input = new float[inputSize, 1];
-                    float[,] hiddenWeights1 = new float[hiddenSize1, inputSize];
-                    float[,] hiddenWeights2 = new float[hiddenSize2, hiddenSize1];
-                    float[,] outputWeights = new float[outputSize, hiddenSize2];
-
-                    float[,] hiddenOutput1 = new float[hiddenSize1, 1];
-                    float[,] hiddenOutput2 = new float[hiddenSize2, 1];
-                    float[,] finalOutput = new float[outputSize, 1];
-
-                    Random rand = new Random();
-                    for (int x = 0; x < inputSize; x++)
-                    {
-                        input[x, 0] = (float)rand.NextDouble();
-                    }
-
-                    for (int x = 0; x < hiddenSize1; x++)
-                    {
-                        for (int y = 0; y < inputSize; y++)
-                        {
-                            hiddenWeights1[x, y] = (float)rand.NextDouble();
-                        }
-                    }
-
-                    for (int x = 0; x < hiddenSize2; x++)
-                    {
-                        for (int y = 0; y < hiddenSize1; y++)
-                        {
-                            hiddenWeights2[x, y] = (float)rand.NextDouble();
-                        }
-                    }
-
-                    for (int x = 0; x < outputSize; x++)
-                    {
-                        for (int y = 0; y < hiddenSize2; y++)
-                        {
-                            outputWeights[x, y] = (float)rand.NextDouble();
-                        }
-                    }
-
-                    for (int x = 0; x < hiddenSize1; x++)
-                    {
-                        hiddenOutput1[x, 0] = 0;
-                        for (int y = 0; y < inputSize; y++)
-                        {
-                            hiddenOutput1[x, 0] += hiddenWeights1[x, y] * input[y, 0];
-                        }
-                        hiddenOutput1[x, 0] = ReLU(hiddenOutput1[x, 0]);
-                    }
-
-                    for (int x = 0; x < hiddenSize2; x++)
-                    {
-                        hiddenOutput2[x, 0] = 0;
-                        for (int y = 0; y < hiddenSize1; y++)
-                        {
-                            hiddenOutput2[x, 0] += hiddenWeights2[x, y] * hiddenOutput1[y, 0];
-                        }
-                        hiddenOutput2[x, 0] = Sigmoid(hiddenOutput2[x, 0]);
-                    }
-
-                    for (int x = 0; x < outputSize; x++)
-                    {
-                        finalOutput[x, 0] = 0;
-                        for (int y = 0; y < hiddenSize2; y++)
-                        {
-                            finalOutput[x, 0] += outputWeights[x, y] * hiddenOutput2[y, 0];
-                        }
-                        finalOutput[x, 0] = Softmax(finalOutput, x, outputSize);
-                    }
+                    ExecuteNeuralNetworkIteration();
                 }
             });
         }
@@ -2058,79 +1785,7 @@ document.addEventListener('DOMContentLoaded', function() {
         {
             for (int i = 0; i < iterations; i++)
             {
-                int inputSize = 256;
-                int hiddenSize1 = 128;
-                int hiddenSize2 = 64;
-                int outputSize = 32;
-
-                float[,] input = new float[inputSize, 1];
-                float[,] hiddenWeights1 = new float[hiddenSize1, inputSize];
-                float[,] hiddenWeights2 = new float[hiddenSize2, hiddenSize1];
-                float[,] outputWeights = new float[outputSize, hiddenSize2];
-
-                float[,] hiddenOutput1 = new float[hiddenSize1, 1];
-                float[,] hiddenOutput2 = new float[hiddenSize2, 1];
-                float[,] finalOutput = new float[outputSize, 1];
-
-                Random rand = new Random();
-                for (int x = 0; x < inputSize; x++)
-                {
-                    input[x, 0] = (float)rand.NextDouble();
-                }
-
-                for (int x = 0; x < hiddenSize1; x++)
-                {
-                    for (int y = 0; y < inputSize; y++)
-                    {
-                        hiddenWeights1[x, y] = (float)rand.NextDouble();
-                    }
-                }
-
-                for (int x = 0; x < hiddenSize2; x++)
-                {
-                    for (int y = 0; y < hiddenSize1; y++)
-                    {
-                        hiddenWeights2[x, y] = (float)rand.NextDouble();
-                    }
-                }
-
-                for (int x = 0; x < outputSize; x++)
-                {
-                    for (int y = 0; y < hiddenSize2; y++)
-                    {
-                        outputWeights[x, y] = (float)rand.NextDouble();
-                    }
-                }
-
-                for (int x = 0; x < hiddenSize1; x++)
-                {
-                    hiddenOutput1[x, 0] = 0;
-                    for (int y = 0; y < inputSize; y++)
-                    {
-                        hiddenOutput1[x, 0] += hiddenWeights1[x, y] * input[y, 0];
-                    }
-                    hiddenOutput1[x, 0] = ReLU(hiddenOutput1[x, 0]);
-                }
-
-                for (int x = 0; x < hiddenSize2; x++)
-                {
-                    hiddenOutput2[x, 0] = 0;
-                    for (int y = 0; y < hiddenSize1; y++)
-                    {
-                        hiddenOutput2[x, 0] += hiddenWeights2[x, y] * hiddenOutput1[y, 0];
-                    }
-                    hiddenOutput2[x, 0] = Sigmoid(hiddenOutput2[x, 0]);
-                }
-
-                for (int x = 0; x < outputSize; x++)
-                {
-                    finalOutput[x, 0] = 0;
-                    for (int y = 0; y < hiddenSize2; y++)
-                    {
-                        finalOutput[x, 0] += outputWeights[x, y] * hiddenOutput2[y, 0];
-                    }
-                    finalOutput[x, 0] = Softmax(finalOutput, x, outputSize);
-                }
+                ExecuteNeuralNetworkIteration();
             }
         }
 
@@ -2138,15 +1793,73 @@ document.addEventListener('DOMContentLoaded', function() {
         return stopwatch.Elapsed;
     }
 
-    static float ReLU(float x)
+    private static void ExecuteNeuralNetworkIteration()
     {
-        return Math.Max(0, x);
+        int inputSize = 256;
+        int hiddenSize1 = 128;
+        int hiddenSize2 = 64;
+        int outputSize = 32;
+
+        float[,] input = new float[inputSize, 1];
+        float[,] hiddenWeights1 = new float[hiddenSize1, inputSize];
+        float[,] hiddenWeights2 = new float[hiddenSize2, hiddenSize1];
+        float[,] outputWeights = new float[outputSize, hiddenSize2];
+
+        float[,] hiddenOutput1 = new float[hiddenSize1, 1];
+        float[,] hiddenOutput2 = new float[hiddenSize2, 1];
+        float[,] finalOutput = new float[outputSize, 1];
+
+        Random rand = new Random();
+        InitializeArray(input, rand);
+        InitializeArray(hiddenWeights1, rand);
+        InitializeArray(hiddenWeights2, rand);
+        InitializeArray(outputWeights, rand);
+
+        ComputeLayer(hiddenWeights1, input, hiddenOutput1, ReLU);
+        ComputeLayer(hiddenWeights2, hiddenOutput1, hiddenOutput2, Sigmoid);
+        ComputeFinalLayer(outputWeights, hiddenOutput2, finalOutput, outputSize);
     }
 
-    static float Sigmoid(float x)
+    private static void InitializeArray(float[,] array, Random rand)
     {
-        return 1 / (1 + MathF.Exp(-x));
+        for (int x = 0; x < array.GetLength(0); x++)
+        {
+            for (int y = 0; y < array.GetLength(1); y++)
+            {
+                array[x, y] = (float)rand.NextDouble();
+            }
+        }
     }
+
+    private static void ComputeLayer(float[,] weights, float[,] input, float[,] output, Func<float, float> activation)
+    {
+        for (int x = 0; x < output.GetLength(0); x++)
+        {
+            output[x, 0] = 0;
+            for (int y = 0; y < weights.GetLength(1); y++)
+            {
+                output[x, 0] += weights[x, y] * input[y, 0];
+            }
+            output[x, 0] = activation(output[x, 0]);
+        }
+    }
+
+    private static void ComputeFinalLayer(float[,] weights, float[,] input, float[,] output, int outputSize)
+    {
+        for (int x = 0; x < output.GetLength(0); x++)
+        {
+            output[x, 0] = 0;
+            for (int y = 0; y < weights.GetLength(1); y++)
+            {
+                output[x, 0] += weights[x, y] * input[y, 0];
+            }
+            output[x, 0] = Softmax(output, x, outputSize);
+        }
+    }
+
+    static float ReLU(float x) => Math.Max(0, x);
+
+    static float Sigmoid(float x) => 1 / (1 + MathF.Exp(-x));
 
     static float Softmax(float[,] output, int index, int outputSize)
     {
@@ -2165,8 +1878,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return MathF.Exp(output[index, 0] - max) / sumExp;
     }
 
-
-    static TimeSpan BenchmarkVideoTranscoding(int iterations, bool multiCore, int threads = 1)
+    private static TimeSpan BenchmarkVideoTranscoding(int iterations, bool multiCore, int threads = 1)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
         int width = 3840;
@@ -2179,19 +1891,7 @@ document.addEventListener('DOMContentLoaded', function() {
             {
                 for (int j = 0; j < iterations; j++)
                 {
-                    for (int f = 0; f < frames; f++)
-                    {
-                        float[,] frame = new float[width, height];
-                        for (int i = 0; i < width; i++)
-                        {
-                            for (int k = 0; k < height; k++)
-                            {
-                                float pixelValue = (i * k) % 255;
-                                float filteredValue = ApplyFilters(pixelValue);
-                                frame[i, k] = filteredValue;
-                            }
-                        }
-                    }
+                    ProcessFrames(frames, width, height);
                 }
             });
         }
@@ -2199,19 +1899,7 @@ document.addEventListener('DOMContentLoaded', function() {
         {
             for (int i = 0; i < iterations; i++)
             {
-                for (int f = 0; f < frames; f++)
-                {
-                    float[,] frame = new float[width, height];
-                    for (int j = 0; j < width; j++)
-                    {
-                        for (int k = 0; k < height; k++)
-                        {
-                            float pixelValue = (j * k) % 255;
-                            float filteredValue = ApplyFilters(pixelValue);
-                            frame[j, k] = filteredValue;
-                        }
-                    }
-                }
+                ProcessFrames(frames, width, height);
             }
         }
 
@@ -2219,7 +1907,24 @@ document.addEventListener('DOMContentLoaded', function() {
         return stopwatch.Elapsed;
     }
 
-    static float ApplyFilters(float pixelValue)
+    private static void ProcessFrames(int frames, int width, int height)
+    {
+        for (int f = 0; f < frames; f++)
+        {
+            float[,] frame = new float[width, height];
+            for (int i = 0; i < width; i++)
+            {
+                for (int k = 0; k < height; k++)
+                {
+                    float pixelValue = (i * k) % 255;
+                    float filteredValue = ApplyFilters(pixelValue);
+                    frame[i, k] = filteredValue;
+                }
+            }
+        }
+    }
+
+    private static float ApplyFilters(float pixelValue)
     {
         pixelValue = MathF.Sqrt(pixelValue) * MathF.Sin(pixelValue) * MathF.Cos(pixelValue);
         pixelValue = (pixelValue * 2.0f) + MathF.Log(pixelValue + 1.0f);
@@ -2227,7 +1932,8 @@ document.addEventListener('DOMContentLoaded', function() {
         pixelValue = MathF.Max(0, MathF.Min(255, pixelValue * 255));
         return pixelValue;
     }
-    static TimeSpan BenchmarkThreadCommunication(int iterations, int threads = 1)
+
+    private static TimeSpan BenchmarkThreadCommunication(int iterations, int threads = 1)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
         object lockObject = new object();
@@ -2256,7 +1962,6 @@ document.addEventListener('DOMContentLoaded', function() {
         stopwatch.Stop();
         return stopwatch.Elapsed;
     }
-
 
     static double CalculateScore(double timeMilliseconds, int logicalProcessorCount, bool isMultiCore)
     {
